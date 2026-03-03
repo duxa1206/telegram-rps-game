@@ -3,6 +3,9 @@ const tg = window.Telegram.WebApp;
 tg.ready();
 tg.expand();
 
+// Тема по умолчанию
+let currentTheme = 'classic';
+
 // Звуковой движок
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -10,12 +13,12 @@ const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 function playSound(type) {
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
-    
+
     oscillator.connect(gainNode);
     gainNode.connect(audioContext.destination);
-    
+
     const now = audioContext.currentTime;
-    
+
     switch (type) {
         case 'hover':
             // Короткий высокий звук при наведении
@@ -26,7 +29,7 @@ function playSound(type) {
             oscillator.start(now);
             oscillator.stop(now + 0.05);
             break;
-            
+
         case 'select':
             // Звук выбора (приятный клик)
             oscillator.frequency.setValueAtTime(600, now);
@@ -36,17 +39,17 @@ function playSound(type) {
             oscillator.start(now);
             oscillator.stop(now + 0.1);
             break;
-            
+
         case 'start':
             // Приветственный звук (арпеджио)
             playArpeggio();
             break;
-            
+
         case 'win':
             // Победный звук (мажорное трезвучие)
             playWinSound();
             break;
-            
+
         case 'lose':
             // Проигрышный звук (нисходящий)
             oscillator.frequency.setValueAtTime(400, now);
@@ -56,7 +59,7 @@ function playSound(type) {
             oscillator.start(now);
             oscillator.stop(now + 0.3);
             break;
-            
+
         case 'draw':
             // Ничья (нейтральный звук)
             oscillator.type = 'triangle';
@@ -66,7 +69,7 @@ function playSound(type) {
             oscillator.start(now);
             oscillator.stop(now + 0.2);
             break;
-            
+
         case 'battle':
             // Звук удара в битве
             oscillator.type = 'sawtooth';
@@ -76,6 +79,28 @@ function playSound(type) {
             gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
             oscillator.start(now);
             oscillator.stop(now + 0.2);
+            break;
+
+        case 'neon':
+            // Неон звук (электронный buzz)
+            oscillator.type = 'sawtooth';
+            oscillator.frequency.setValueAtTime(880, now);
+            oscillator.frequency.exponentialRampToValueAtTime(1760, now + 0.2);
+            gainNode.gain.setValueAtTime(0.1, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+            oscillator.start(now);
+            oscillator.stop(now + 0.2);
+            break;
+
+        case 'space':
+            // Космос звук (space hum)
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(200, now);
+            oscillator.frequency.exponentialRampToValueAtTime(100, now + 0.5);
+            gainNode.gain.setValueAtTime(0.15, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+            oscillator.start(now);
+            oscillator.stop(now + 0.5);
             break;
     }
 }
@@ -189,6 +214,74 @@ newSeriesBtn.addEventListener('mouseenter', () => {
 newSeriesBtn.addEventListener('click', () => {
     resetSeries();
 });
+
+// Переключатель тем
+const themeSwitcher = document.getElementById('theme-switcher');
+const themeBtns = document.querySelectorAll('.theme-btn');
+
+// Авто-определение темы Telegram
+function detectTelegramTheme() {
+    if (tg.themeParams && tg.themeParams.bg_color) {
+        const bg = tg.themeParams.bg_color;
+        // Если светлый фон - классика, если тёмный - неон
+        return bg.toLowerCase() === '#ffffff' || bg.toLowerCase() === '#fff' ? 'classic' : 'neon';
+    }
+    return 'classic';
+}
+
+// Установка темы
+function setTheme(theme) {
+    currentTheme = theme;
+    
+    // Плавный переход
+    document.body.classList.add('theme-transition');
+    
+    // Удаляем все темы
+    document.body.classList.remove('neon', 'space');
+    
+    // Устанавлием новую
+    if (theme !== 'classic') {
+        document.body.classList.add(theme);
+    }
+    
+    // Обновляем кнопки
+    themeBtns.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.theme === theme) {
+            btn.classList.add('active');
+        }
+    });
+    
+    // Звук темы
+    if (theme === 'neon') {
+        playSound('neon');
+    } else if (theme === 'space') {
+        playSound('space');
+    }
+    
+    // Сохраняем тему
+    localStorage.setItem('rps_theme', theme);
+    
+    // Убираем transition через 0.5 сек
+    setTimeout(() => {
+        document.body.classList.remove('theme-transition');
+    }, 500);
+}
+
+// Обработчики кнопок тем
+themeBtns.forEach(btn => {
+    btn.addEventListener('mouseenter', () => {
+        playSound('hover');
+    });
+    
+    btn.addEventListener('click', () => {
+        setTheme(btn.dataset.theme);
+    });
+});
+
+// Загружаем тему при старте
+const savedTheme = localStorage.getItem('rps_theme') || detectTelegramTheme();
+setTheme(savedTheme);
 
 // Элементы для анимации битвы
 const battleArea = document.getElementById('battle-area');

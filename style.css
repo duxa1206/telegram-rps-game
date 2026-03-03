@@ -4,28 +4,218 @@
     box-sizing: border-box;
 }
 
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
+:root {
+    --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --container-bg: white;
+    --text-color: #333;
+    --score-bg: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+    --btn-bg: white;
+    --btn-color: #667eea;
+    --btn-border: #667eea;
+    --glow-color: rgba(102, 126, 234, 0.4);
+    --emoji-filter: none;
+}
+
+/* Neon Theme */
+body.neon {
+    --bg-gradient: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+    --container-bg: rgba(0, 0, 0, 0.8);
+    --text-color: #fff;
+    --score-bg: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    --btn-bg: rgba(0, 0, 0, 0.6);
+    --btn-color: #0ff;
+    --btn-border: #0ff;
+    --glow-color: rgba(0, 255, 255, 0.6);
+    --emoji-filter: drop-shadow(0 0 10px #0ff) drop-shadow(0 0 20px #0ff);
+}
+
+body.neon .container {
+    border: 2px solid #0ff;
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.5), inset 0 0 30px rgba(0, 255, 255, 0.1);
+    animation: neonPulse 2s ease-in-out infinite;
+}
+
+@keyframes neonPulse {
+    0%, 100% { 
+        box-shadow: 0 0 30px rgba(0, 255, 255, 0.5), inset 0 0 30px rgba(0, 255, 255, 0.1);
+    }
+    50% { 
+        box-shadow: 0 0 50px rgba(0, 255, 255, 0.8), inset 0 0 50px rgba(0, 255, 255, 0.2);
+    }
+}
+
+body.neon .choice-btn {
+    animation: neonBtnPulse 2s ease-in-out infinite;
+}
+
+@keyframes neonBtnPulse {
+    0%, 100% { 
+        box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+    }
+    50% { 
+        box-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
+    }
+}
+
+body.neon .score-board {
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+}
+
+body.neon .streak-display {
+    background: linear-gradient(135deg, #0ff 0%, #00ff88 100%);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+}
+
+/* Space Theme */
+body.space {
+    --bg-gradient: linear-gradient(135deg, #000000 0%, #1a1a2e 100%);
+    --container-bg: rgba(10, 10, 30, 0.9);
+    --text-color: #e0e0ff;
+    --score-bg: linear-gradient(135deg, #1a1a3e 0%, #0f0f2e 100%);
+    --btn-bg: rgba(20, 20, 50, 0.8);
+    --btn-color: #a0a0ff;
+    --btn-border: #a0a0ff;
+    --glow-color: rgba(160, 160, 255, 0.4);
+    --emoji-filter: drop-shadow(0 0 8px #a0a0ff);
+}
+
+body.space .container {
+    border: 1px solid rgba(160, 160, 255, 0.3);
+    box-shadow: 0 0 30px rgba(160, 160, 255, 0.2);
+}
+
+body.space .choice-btn:hover {
+    box-shadow: 0 0 25px rgba(160, 160, 255, 0.6);
+}
+
+/* Stars background for space theme */
+body.space::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(2px 2px at 20px 30px, #fff, transparent),
+        radial-gradient(2px 2px at 40px 70px, #fff, transparent),
+        radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+        radial-gradient(2px 2px at 160px 120px, #fff, transparent),
+        radial-gradient(1px 1px at 230px 80px, #fff, transparent),
+        radial-gradient(2px 2px at 300px 150px, #fff, transparent),
+        radial-gradient(1px 1px at 370px 50px, #fff, transparent),
+        radial-gradient(2px 2px at 450px 180px, #fff, transparent),
+        radial-gradient(1px 1px at 520px 100px, #fff, transparent),
+        radial-gradient(2px 2px at 600px 200px, #fff, transparent);
+    background-repeat: repeat;
+    background-size: 650px 250px;
+    animation: starsMove 100s linear infinite;
+    opacity: 0.5;
+    z-index: -1;
+}
+
+@keyframes starsMove {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-250px); }
+}
+
+body.space .fighter-emoji {
+    animation: orbit 3s ease-in-out infinite;
+}
+
+@keyframes orbit {
+    0%, 100% { 
+        transform: translateY(0) rotate(0deg);
+    }
+    50% { 
+        transform: translateY(-10px) rotate(5deg);
+    }
+}
+
+body.space .streak-display {
+    background: linear-gradient(135deg, #a0a0ff 0%, #6060ff 100%);
+    box-shadow: 0 0 20px rgba(160, 160, 255, 0.6);
+}
+
+/* Theme Switcher */
+.theme-switcher {
     display: flex;
     justify-content: center;
-    align-items: center;
-    padding: 20px;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.theme-btn {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    border: 2px solid #667eea;
+    background: white;
+    color: #667eea;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.theme-btn:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.theme-btn.active {
+    background: #667eea;
+    color: white;
+    box-shadow: 0 0 15px rgba(102, 126, 234, 0.5);
+}
+
+body.neon .theme-btn {
+    border-color: #0ff;
+    background: rgba(0, 0, 0, 0.6);
+    color: #0ff;
+}
+
+body.neon .theme-btn:hover,
+body.neon .theme-btn.active {
+    background: #0ff;
+    color: #000;
+}
+
+body.space .theme-btn {
+    border-color: #a0a0ff;
+    background: rgba(20, 20, 50, 0.8);
+    color: #a0a0ff;
+}
+
+body.space .theme-btn:hover,
+body.space .theme-btn.active {
+    background: #a0a0ff;
+    color: #000;
+}
+
+/* Page Transition */
+body.theme-transition {
+    transition: all 0.5s ease;
+}
+
+body.theme-transition * {
+    transition: all 0.5s ease;
 }
 
 .container {
-    background: white;
+    background: var(--container-bg);
+    color: var(--text-color);
     border-radius: 20px;
     padding: 30px;
     max-width: 400px;
     width: 100%;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    transition: all 0.5s ease;
 }
 
 h1 {
     text-align: center;
-    color: #333;
+    color: var(--text-color);
     margin-bottom: 20px;
     font-size: 1.5rem;
 }
@@ -254,17 +444,18 @@ h1 {
 .choice-btn {
     padding: 15px 20px;
     font-size: 1.1rem;
-    border: 2px solid #667eea;
-    background: white;
-    color: #667eea;
+    border: 2px solid var(--btn-border);
+    background: var(--btn-bg);
+    color: var(--btn-color);
     border-radius: 10px;
     cursor: pointer;
     transition: all 0.3s ease;
+    filter: var(--emoji-filter);
 }
 
 .choice-btn:hover {
-    background: #667eea;
-    color: white;
+    background: var(--btn-border);
+    color: var(--container-bg);
     transform: translateY(-2px);
 }
 
