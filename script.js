@@ -120,6 +120,8 @@ function playWinSound() {
 // Счёт
 let playerScore = 0;
 let botScore = 0;
+let currentStreak = 0;
+let seriesWinsNeeded = 5;
 
 // Элементы DOM
 const choiceBtns = document.querySelectorAll('.choice-btn');
@@ -133,6 +135,12 @@ const playerScoreEl = document.getElementById('player-score');
 const botScoreEl = document.getElementById('bot-score');
 const thinkingArea = document.getElementById('thinking-area');
 const thinkingEmoji = document.getElementById('thinking-emoji');
+const streakDisplay = document.getElementById('streak-display');
+const streakCountEl = document.getElementById('streak-count');
+const playerFill = document.getElementById('player-fill');
+const botFill = document.getElementById('bot-fill');
+const progressText = document.getElementById('progress-text');
+const newSeriesBtn = document.getElementById('new-series-btn');
 
 // Эмодзи для выбора
 const choiceEmojis = {
@@ -171,6 +179,15 @@ playAgainBtn.addEventListener('click', () => {
     choiceArea.style.display = 'block';
     thinkingArea.style.display = 'none';
     battleArea.style.display = 'none';
+});
+
+// Обработчик кнопки "Новая серия"
+newSeriesBtn.addEventListener('mouseenter', () => {
+    playSound('hover');
+});
+
+newSeriesBtn.addEventListener('click', () => {
+    resetSeries();
 });
 
 // Элементы для анимации битвы
@@ -335,15 +352,25 @@ function showResult(playerChoice, botChoice, result) {
     // Скрываем битву
     battleArea.style.display = 'none';
 
-    // Обновляем счёт
+    // Обновляем счёт с анимацией
     if (result === 'win') {
+        animateScore(playerScoreEl, playerScore, playerScore + 1);
         playerScore++;
+        currentStreak++;
     } else if (result === 'lose') {
+        animateScore(botScoreEl, botScore, botScore + 1);
         botScore++;
+        currentStreak = 0;
+    } else {
+        // Ничья не меняет счёт но сбрасывает стрик
+        currentStreak = 0;
     }
 
-    playerScoreEl.textContent = playerScore;
-    botScoreEl.textContent = botScore;
+    // Обновляем стрик
+    updateStreak();
+    
+    // Обновляем прогресс-бар
+    updateProgressBar();
 
     // Показываем выбор
     playerChoiceDisplay.textContent = choiceEmojis[playerChoice];
@@ -355,6 +382,108 @@ function showResult(playerChoice, botChoice, result) {
 
     // Переключаем видимость
     resultArea.style.display = 'block';
+    
+    // Проверяем конец серии
+    checkSeriesEnd();
+}
+
+// Анимация счётчика
+function animateScore(element, from, to) {
+    const duration = 500;
+    const startTime = performance.now();
+    
+    function animate(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Easing function
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        
+        const currentValue = Math.floor(from + (to - from) * easeOut);
+        element.textContent = currentValue;
+        
+        if (progress < 1) {
+            requestAnimationFrame(animate);
+        } else {
+            element.textContent = to;
+        }
+    }
+    
+    requestAnimationFrame(animate);
+}
+
+// Обновить стрик
+function updateStreak() {
+    streakCountEl.textContent = `x${currentStreak}`;
+    
+    if (currentStreak > 0) {
+        streakDisplay.classList.add('active');
+        
+        // Искры для стрика > 3
+        if (currentStreak >= 3) {
+            createStreakSparkles();
+        }
+    } else {
+        streakDisplay.classList.remove('active');
+    }
+}
+
+// Обновить прогресс-бар
+function updateProgressBar() {
+    const totalWins = playerScore + botScore;
+    const playerPercent = totalWins > 0 ? (playerScore / seriesWinsNeeded) * 100 : 0;
+    const botPercent = totalWins > 0 ? (botScore / seriesWinsNeeded) * 100 : 0;
+    
+    playerFill.style.width = `${Math.min(playerPercent, 100)}%`;
+    botFill.style.width = `${Math.min(botPercent, 100)}%`;
+    progressText.textContent = `${playerScore} : ${botScore}`;
+}
+
+// Проверка конца серии
+function checkSeriesEnd() {
+    if (playerScore >= seriesWinsNeeded || botScore >= seriesWinsNeeded) {
+        // Серия закончена
+        setTimeout(() => {
+            newSeriesBtn.style.display = 'block';
+            
+            if (currentStreak > 5) {
+                newSeriesBtn.classList.add('pulse');
+            }
+        }, 500);
+    }
+}
+
+// Сброс серии
+function resetSeries() {
+    playerScore = 0;
+    botScore = 0;
+    currentStreak = 0;
+    
+    animateScore(playerScoreEl, 0, 0);
+    animateScore(botScoreEl, 0, 0);
+    updateStreak();
+    updateProgressBar();
+    
+    newSeriesBtn.style.display = 'none';
+    newSeriesBtn.classList.remove('pulse');
+    
+    playSound('select');
+}
+
+// Искры для стрика
+function createStreakSparkles() {
+    const rect = streakDisplay.getBoundingClientRect();
+    
+    for (let i = 0; i < 5; i++) {
+        const sparkle = document.createElement('div');
+        sparkle.className = 'sparkle';
+        sparkle.style.left = (rect.left + Math.random() * rect.width) + 'px';
+        sparkle.style.top = (rect.top + Math.random() * rect.height) + 'px';
+        sparkle.style.animationDelay = (i * 0.1) + 's';
+        document.body.appendChild(sparkle);
+        
+        setTimeout(() => sparkle.remove(), 800);
+    }
 }
 
 // Звук при запуске (через 1 секунду после загрузки)

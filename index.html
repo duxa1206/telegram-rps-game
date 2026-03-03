@@ -13,14 +13,35 @@
         
         <div class="score-board">
             <div class="score">
-                <span>Вы:</span>
+                <span>Ты:</span>
                 <span id="player-score">0</span>
+                <span class="score-icon">🔥</span>
+            </div>
+            <div class="streak-display" id="streak-display">
+                <span class="streak-icon">⚡</span>
+                <span id="streak-count">x0</span>
             </div>
             <div class="score">
                 <span>Бот:</span>
                 <span id="bot-score">0</span>
+                <span class="score-icon">💀</span>
             </div>
         </div>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar">
+                <div class="progress-fill player-fill" id="player-fill"></div>
+                <div class="progress-fill bot-fill" id="bot-fill"></div>
+            </div>
+            <div class="progress-labels">
+                <span>Серия до 5 побед</span>
+                <span id="progress-text">0 : 0</span>
+            </div>
+        </div>
+        
+        <button class="new-series-btn" id="new-series-btn" style="display: none;">
+            🔄 Новая серия
+        </button>
         
         <div class="game-area">
             <div class="choice-area">

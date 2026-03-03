@@ -33,20 +33,23 @@ h1 {
 .score-board {
     display: flex;
     justify-content: space-around;
-    margin-bottom: 30px;
+    align-items: center;
+    margin-bottom: 20px;
     padding: 15px;
-    background: #f5f5f5;
-    border-radius: 10px;
+    background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .score {
     text-align: center;
+    position: relative;
 }
 
 .score span:first-child {
     display: block;
     color: #666;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     margin-bottom: 5px;
 }
 
@@ -55,6 +58,181 @@ h1 {
     font-size: 2rem;
     font-weight: bold;
     color: #667eea;
+    transition: all 0.3s ease;
+}
+
+.score-icon {
+    font-size: 1.2rem;
+    filter: drop-shadow(0 0 5px rgba(255, 100, 100, 0.8));
+    animation: glow 2s ease-in-out infinite;
+}
+
+@keyframes glow {
+    0%, 100% { filter: drop-shadow(0 0 5px rgba(255, 100, 100, 0.8)); }
+    50% { filter: drop-shadow(0 0 15px rgba(255, 100, 100, 1)); }
+}
+
+.streak-display {
+    text-align: center;
+    padding: 10px 15px;
+    background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(255, 215, 0, 0.4);
+    animation: streakPulse 1.5s ease-in-out infinite;
+}
+
+.streak-display.active {
+    animation: streakActive 0.5s ease-in-out infinite;
+}
+
+@keyframes streakPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@keyframes streakActive {
+    0%, 100% { 
+        transform: scale(1);
+        box-shadow: 0 2px 10px rgba(255, 215, 0, 0.4);
+    }
+    50% { 
+        transform: scale(1.1);
+        box-shadow: 0 4px 20px rgba(255, 215, 0, 0.8);
+    }
+}
+
+.streak-icon {
+    font-size: 1.5rem;
+    display: block;
+}
+
+.streak-display span:last-child {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+/* Progress Bar */
+.progress-container {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f5f5f5;
+    border-radius: 10px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 20px;
+    background: #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    margin-bottom: 10px;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.progress-fill {
+    height: 100%;
+    transition: width 0.5s ease;
+}
+
+.player-fill {
+    background: linear-gradient(90deg, #4CAF50 0%, #45a049 100%);
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+}
+
+.bot-fill {
+    background: linear-gradient(90deg, #f44336 0%, #da1e1e 100%);
+    box-shadow: 0 0 10px rgba(244, 67, 54, 0.5);
+}
+
+.progress-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+#progress-text {
+    font-weight: bold;
+    color: #333;
+}
+
+/* New Series Button */
+.new-series-btn {
+    display: block;
+    margin: 0 auto 20px;
+    padding: 12px 25px;
+    font-size: 1rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.new-series-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+}
+
+.new-series-btn.pulse {
+    animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { 
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+    }
+    50% { 
+        transform: scale(1.05);
+        box-shadow: 0 0 0 15px rgba(102, 126, 234, 0);
+    }
+}
+
+.new-series-btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.new-series-btn:active::after {
+    width: 300px;
+    height: 300px;
+}
+
+/* Sparkles for streaks */
+.sparkle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #ffd700;
+    border-radius: 50%;
+    animation: sparkleAnim 0.8s ease forwards;
+    pointer-events: none;
+}
+
+@keyframes sparkleAnim {
+    0% { 
+        opacity: 1; 
+        transform: scale(0) translateY(0); 
+    }
+    100% { 
+        opacity: 0; 
+        transform: scale(1) translateY(-50px); 
+    }
 }
 
 .game-area {
