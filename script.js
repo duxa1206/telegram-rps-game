@@ -155,6 +155,7 @@ let createdGames = []; // Ходы создателя
 let currentGameIndex = 0;
 let totalGames = 1;
 let isCreator = false;
+let currentGameId = null; // ID текущей игры
 
 // Элементы DOM
 const choiceBtns = document.querySelectorAll('.choice-btn');
@@ -177,6 +178,10 @@ const currentGameNum = document.getElementById('current-game-num');
 const totalGamesNum = document.getElementById('total-games-num');
 const modeBtns = document.querySelectorAll('.mode-btn');
 const gameControls = document.querySelector('.game-controls');
+const activeGamesBtn = document.getElementById('active-games-btn');
+const activeGamesList = document.getElementById('active-games-list');
+const gamesContainer = document.getElementById('games-container');
+const closeGamesList = document.getElementById('close-games-list');
 
 // Эмодзи для выбора
 const choiceEmojis = {
@@ -293,8 +298,13 @@ createChoiceBtns.forEach(btn => {
             createGameArea.style.display = 'none';
             waitingArea.style.display = 'block';
             
-            // Сохраняем игру в localStorage
-            saveGame(createdGames);
+            // Сохраняем игру в localStorage с уникальным ID
+            saveGame({
+                id: Date.now().toString(36) + Math.random().toString(36).slice(2),
+                createdGames: createdGames,
+                totalGames: totalGames,
+                createdAt: Date.now()
+            });
         }
     });
     
@@ -306,47 +316,117 @@ createChoiceBtns.forEach(btn => {
 });
 
 // Проверка есть ли активная игра
-function loadGame() {
-    const saved = localStorage.getItem('rps_game');
+function loadGames() {
+    const saved = localStorage.getItem('rps_games');
     if (saved) {
         return JSON.parse(saved);
     }
-    return null;
+    return [];
 }
 
-function saveGame(games) {
-    localStorage.setItem('rps_game', JSON.stringify({
-        createdGames: games,
-        createdAt: Date.now()
-    }));
+function saveGame(game) {
+    const games = loadGames();
+    games.push(game);
+    localStorage.setItem('rps_games', JSON.stringify(games));
+    updateActiveGamesButton();
 }
 
-function clearGame() {
-    localStorage.removeItem('rps_game');
+function removeGame(gameId) {
+    let games = loadGames();
+    games = games.filter(g => g.id !== gameId);
+    localStorage.setItem('rps_games', JSON.stringify(games));
+    updateActiveGamesButton();
+}
+
+function updateActiveGamesButton() {
+    const games = loadGames();
+    if (games.length > 0) {
+        activeGamesBtn.style.display = 'block';
+        activeGamesBtn.textContent = `📋 Активные игры (${games.length})`;
+    } else {
+        activeGamesBtn.style.display = 'none';
+    }
+}
+
+function showActiveGamesList() {
+    const games = loadGames();
+    gamesContainer.innerHTML = '';
+    
+    if (games.length === 0) {
+        gamesContainer.innerHTML = '<p class="no-games">Нет активных игр</p>';
+    } else {
+        games.forEach(game => {
+            const gameItem = document.createElement('div');
+            gameItem.className = 'game-item';
+            
+            const moves = game.createdGames.map(m => {
+                const emojis = { 'камень': '⚪', 'ножницы': '✂', 'бумага': '📄' };
+                return emojis[m];
+            }).join(' ');
+            
+            gameItem.innerHTML = `
+                <div class="game-item-info">
+                    <div class="game-item-id">Игра #${game.id.slice(0, 8)}</div>
+                    <div class="game-item-details">Игр: ${game.totalGames} | Ходы: ${moves}</div>
+                    <div class="game-item-details">Создана: ${new Date(game.createdAt).toLocaleString()}</div>
+                </div>
+                <div class="game-item-actions">
+                    <button class="play-btn" data-id="${game.id}">▶️ Играть</button>
+                    <button class="delete-btn" data-id="${game.id}">🗑️</button>
+                </div>
+            `;
+            
+            gamesContainer.appendChild(gameItem);
+        });
+        
+        // Обработчики кнопок
+        gamesContainer.querySelectorAll('.play-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                playGame(btn.dataset.id);
+            });
+        });
+        
+        gamesContainer.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                removeGame(btn.dataset.id);
+                showActiveGamesList();
+            });
+        });
+    }
+    
+    activeGamesList.style.display = 'block';
+}
+
+function playGame(gameId) {
+    const games = loadGames();
+    const game = games.find(g => g.id === gameId);
+    
+    if (game) {
+        isCreator = false;
+        createdGames = game.createdGames;
+        totalGames = createdGames.length;
+        currentGameIndex = 0;
+        currentGameId = gameId;
+        
+        activeGamesList.style.display = 'none';
+        createGameBtn.style.display = 'none';
+        activeGamesBtn.style.display = 'none';
+        
+        if (soundEnabled) {
+            playSound('select');
+        }
+    }
 }
 
 // Проверяем при загрузке
-const existingGame = loadGame();
-if (existingGame) {
-    // Игрок отвечает на созданную игру
-    isCreator = false;
-    createdGames = existingGame.createdGames;
-    totalGames = createdGames.length;
-    currentGameIndex = 0;
-    
-    createGameBtn.style.display = 'none';
-    
-    // Добавляем кнопку сброса
-    const resetBtn = document.createElement('button');
-    resetBtn.className = 'control-btn';
-    resetBtn.textContent = '🔄 Новая игра';
-    resetBtn.style.marginTop = '10px';
-    resetBtn.addEventListener('click', () => {
-        clearGame();
-        location.reload();
-    });
-    gameControls.appendChild(resetBtn);
-}
+const existingGames = loadGames();
+updateActiveGamesButton();
+
+// Обработчики для списка игр
+activeGamesBtn.addEventListener('click', showActiveGamesList);
+closeGamesList.addEventListener('click', () => {
+    activeGamesList.style.display = 'none';
+});
 
 // Переключатель тем
 const themeSwitcher = document.getElementById('theme-switcher');
@@ -796,9 +876,22 @@ function showFinalResult() {
     resultMessage.className = 'result-message';
     resultArea.style.display = 'block';
     
-    // Очищаем игру
+    // Удаляем сыгранную игру
+    if (currentGameId) {
+        removeGame(currentGameId);
+        currentGameId = null;
+    }
+    
+    // Очищаем и перезагружаем
     setTimeout(() => {
-        clearGame();
+        createdGames = [];
+        currentGameIndex = 0;
+        totalGames = 1;
+        isCreator = false;
+        playerScore = 0;
+        botScore = 0;
+        updateActiveGamesButton();
+        createGameBtn.style.display = 'block';
         location.reload();
     }, 4000);
 }
