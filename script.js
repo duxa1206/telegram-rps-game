@@ -3,6 +3,120 @@ const tg = window.Telegram.WebApp;
 tg.ready();
 tg.expand();
 
+// Звуковой движок
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+// Генерация звуков
+function playSound(type) {
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    const now = audioContext.currentTime;
+    
+    switch (type) {
+        case 'hover':
+            // Короткий высокий звук при наведении
+            oscillator.frequency.setValueAtTime(800, now);
+            oscillator.frequency.exponentialRampToValueAtTime(1200, now + 0.05);
+            gainNode.gain.setValueAtTime(0.1, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+            oscillator.start(now);
+            oscillator.stop(now + 0.05);
+            break;
+            
+        case 'select':
+            // Звук выбора (приятный клик)
+            oscillator.frequency.setValueAtTime(600, now);
+            oscillator.frequency.exponentialRampToValueAtTime(400, now + 0.1);
+            gainNode.gain.setValueAtTime(0.2, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+            oscillator.start(now);
+            oscillator.stop(now + 0.1);
+            break;
+            
+        case 'start':
+            // Приветственный звук (арпеджио)
+            playArpeggio();
+            break;
+            
+        case 'win':
+            // Победный звук (мажорное трезвучие)
+            playWinSound();
+            break;
+            
+        case 'lose':
+            // Проигрышный звук (нисходящий)
+            oscillator.frequency.setValueAtTime(400, now);
+            oscillator.frequency.exponentialRampToValueAtTime(200, now + 0.3);
+            gainNode.gain.setValueAtTime(0.2, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+            oscillator.start(now);
+            oscillator.stop(now + 0.3);
+            break;
+            
+        case 'draw':
+            // Ничья (нейтральный звук)
+            oscillator.type = 'triangle';
+            oscillator.frequency.setValueAtTime(500, now);
+            gainNode.gain.setValueAtTime(0.15, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+            oscillator.start(now);
+            oscillator.stop(now + 0.2);
+            break;
+            
+        case 'battle':
+            // Звук удара в битве
+            oscillator.type = 'sawtooth';
+            oscillator.frequency.setValueAtTime(150, now);
+            oscillator.frequency.exponentialRampToValueAtTime(50, now + 0.2);
+            gainNode.gain.setValueAtTime(0.3, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+            oscillator.start(now);
+            oscillator.stop(now + 0.2);
+            break;
+    }
+}
+
+// Арпеджио для старта
+function playArpeggio() {
+    const notes = [523.25, 659.25, 783.99, 1046.50]; // C major
+    notes.forEach((freq, i) => {
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+        
+        const now = audioContext.currentTime + (i * 0.1);
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+        osc.start(now);
+        osc.stop(now + 0.1);
+    });
+}
+
+// Победный звук
+function playWinSound() {
+    const notes = [523.25, 659.25, 783.99, 1046.50]; // C major chord
+    notes.forEach((freq, i) => {
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+        
+        const now = audioContext.currentTime + (i * 0.08);
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+        osc.start(now);
+        osc.stop(now + 0.3);
+    });
+}
+
 // Счёт
 let playerScore = 0;
 let botScore = 0;
@@ -36,13 +150,22 @@ const resultMessages = {
 
 // Обработчики кнопок выбора
 choiceBtns.forEach(btn => {
+    btn.addEventListener('mouseenter', () => {
+        playSound('hover');
+    });
+    
     btn.addEventListener('click', () => {
         const choice = btn.dataset.choice;
+        playSound('select');
         makeMove(choice);
     });
 });
 
 // Обработчик кнопки "Играть снова"
+playAgainBtn.addEventListener('mouseenter', () => {
+    playSound('hover');
+});
+
 playAgainBtn.addEventListener('click', () => {
     resultArea.style.display = 'none';
     choiceArea.style.display = 'block';
@@ -114,6 +237,7 @@ function runBattleAnimation(playerChoice, botChoice, result) {
         // Вибрация при столкновении
         setTimeout(() => {
             tg.HapticFeedback.impactOccurred('heavy');
+            playSound('battle');
 
             // Показываем эффект столкновения
             showBattleEffect(result);
@@ -135,16 +259,19 @@ function showBattleEffect(result) {
         battleEffect.textContent = '💥';
         createConfetti();
         tg.HapticFeedback.notificationOccurred('success');
+        playSound('win');
     } else if (result === 'lose') {
         // Дым для поражения
         battleEffect.textContent = '💨';
         createSmoke();
         tg.HapticFeedback.notificationOccurred('error');
+        playSound('lose');
     } else {
         // Тряска для ничьей
         battleEffect.textContent = '🔄';
         document.querySelector('.battle-area').classList.add('shake');
         tg.HapticFeedback.notificationOccurred('warning');
+        playSound('draw');
     }
 
     // Очищаем классы после анимации
@@ -229,3 +356,8 @@ function showResult(playerChoice, botChoice, result) {
     // Переключаем видимость
     resultArea.style.display = 'block';
 }
+
+// Звук при запуске (через 1 секунду после загрузки)
+setTimeout(() => {
+    playSound('start');
+}, 1000);
