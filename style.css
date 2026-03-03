@@ -118,6 +118,139 @@ h1 {
     }
 }
 
+/* Battle Area */
+.battle-area {
+    animation: fadeIn 0.3s ease;
+    padding: 20px;
+}
+
+.battle-area {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    position: relative;
+    min-height: 200px;
+}
+
+.fighter {
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.fighter-emoji {
+    font-size: 5rem;
+    display: block;
+}
+
+.fighter-name {
+    color: #666;
+    font-size: 1rem;
+    margin-top: 10px;
+}
+
+.vs-badge {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #ff4444;
+    animation: pulse 0.5s ease infinite;
+}
+
+/* Battle animations */
+.player-fighter.approach {
+    animation: approachRight 0.5s ease forwards;
+}
+
+.bot-fighter.approach {
+    animation: approachLeft 0.5s ease forwards;
+}
+
+@keyframes approachRight {
+    0% { transform: translateX(0); }
+    50% { transform: translateX(50px); }
+    100% { transform: translateX(0); }
+}
+
+@keyframes approachLeft {
+    0% { transform: translateX(0); }
+    50% { transform: translateX(-50px); }
+    100% { transform: translateX(0); }
+}
+
+/* Battle effects */
+.battle-effect {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 6rem;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.battle-effect.flash {
+    animation: flashEffect 0.6s ease forwards;
+}
+
+@keyframes flashEffect {
+    0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
+    50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+}
+
+/* Confetti */
+.confetti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #ffd700;
+    animation: confettiFall 1s ease forwards;
+}
+
+@keyframes confettiFall {
+    0% { 
+        opacity: 1; 
+        transform: translateY(0) rotate(0deg); 
+    }
+    100% { 
+        opacity: 0; 
+        transform: translateY(200px) rotate(720deg); 
+    }
+}
+
+/* Smoke */
+.smoke {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    background: radial-gradient(circle, rgba(100,100,100,0.8) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: smokeRise 0.8s ease forwards;
+}
+
+@keyframes smokeRise {
+    0% { 
+        opacity: 0.8; 
+        transform: translate(-50%, -50%) scale(0.5); 
+    }
+    100% { 
+        opacity: 0; 
+        transform: translate(-50%, -150%) scale(2); 
+    }
+}
+
+/* Shake for draw */
+.shake {
+    animation: shakeEffect 0.5s ease;
+}
+
+@keyframes shakeEffect {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-10px); }
+    40% { transform: translateX(10px); }
+    60% { transform: translateX(-10px); }
+    80% { transform: translateX(10px); }
+}
+
 .result-area {
     animation: fadeIn 0.3s ease;
 }
