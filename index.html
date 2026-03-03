@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Камень, Ножницы, Бумага</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Камень, Ножницы, Бумага</h1>
+        
+        <div class="score-board">
+            <div class="score">
+                <span>Вы:</span>
+                <span id="player-score">0</span>
+            </div>
+            <div class="score">
+                <span>Бот:</span>
+                <span id="bot-score">0</span>
+            </div>
+        </div>
+        
+        <div class="game-area">
+            <div class="choice-area">
+                <p>Выберите:</p>
+                <div class="buttons">
+                    <button class="choice-btn" data-choice="камень">
+                        🪨 Камень
+                    </button>
+                    <button class="choice-btn" data-choice="ножницы">
+                        ✂️ Ножницы
+                    </button>
+                    <button class="choice-btn" data-choice="бумага">
+                        📄 Бумага
+                    </button>
+                </div>
+            </div>
+            
+            <div class="thinking-area" id="thinking-area" style="display: none;">
+                <p>Бот выбирает...</p>
+                <div class="thinking-emoji" id="thinking-emoji">🪨</div>
+            </div>
+            
+            <div class="result-area" id="result-area" style="display: none;">
+                <div class="choices">
+                    <div class="player-choice">
+                        <p>Вы:</p>
+                        <span id="player-choice-display">-</span>
+                    </div>
+                    <div class="vs">VS</div>
+                    <div class="bot-choice">
+                        <p>Бот:</p>
+                        <span id="bot-choice-display">-</span>
+                    </div>
+                </div>
+                <div class="result-message" id="result-message"></div>
+                <button class="play-again-btn" id="play-again-btn">Играть снова</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
