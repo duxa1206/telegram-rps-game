@@ -150,6 +150,12 @@ let botScore = 0;
 let soundEnabled = true;
 let gameMode = 'bot'; // 'bot' или 'friend'
 
+// Для игры с другом
+let createdGames = []; // Ходы создателя
+let currentGameIndex = 0;
+let totalGames = 1;
+let isCreator = false;
+
 // Элементы DOM
 const choiceBtns = document.querySelectorAll('.choice-btn');
 const resultArea = document.getElementById('result-area');
@@ -163,7 +169,14 @@ const botScoreEl = document.getElementById('bot-score');
 const thinkingArea = document.getElementById('thinking-area');
 const thinkingEmoji = document.getElementById('thinking-emoji');
 const soundToggle = document.getElementById('sound-toggle');
-const inviteBtn = document.getElementById('invite-btn');
+const createGameBtn = document.getElementById('create-game-btn');
+const gameModeSelect = document.getElementById('game-mode-select');
+const createGameArea = document.getElementById('create-game-area');
+const waitingArea = document.getElementById('waiting-area');
+const currentGameNum = document.getElementById('current-game-num');
+const totalGamesNum = document.getElementById('total-games-num');
+const modeBtns = document.querySelectorAll('.mode-btn');
+const gameControls = document.querySelector('.game-controls');
 
 // Эмодзи для выбора
 const choiceEmojis = {
@@ -230,19 +243,110 @@ if (savedSound !== null) {
     }
 }
 
-// Кнопка "Играть с другом"
-inviteBtn.addEventListener('click', () => {
-    const gameUrl = window.location.href;
-    const message = `🎮 Давай сыграем в Камень, Ножницы, Бумага!\n\nОткрой ссылку: ${gameUrl}`;
+// Создать игру
+createGameBtn.addEventListener('click', () => {
+    gameModeSelect.style.display = 'block';
+    createGameBtn.style.display = 'none';
     
-    if (tg && tg.shareUrl) {
-        tg.shareUrl(message);
-    } else {
-        // Копируем в буфер
-        navigator.clipboard.writeText(`${message}\n\nИли скопируй ссылку: ${gameUrl}`);
-        alert('Ссылка скопирована в буфер обмена!');
+    if (soundEnabled) {
+        playSound('select');
     }
 });
+
+// Выбор количества игр
+modeBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        totalGames = parseInt(btn.dataset.games);
+        createdGames = [];
+        currentGameIndex = 0;
+        isCreator = true;
+        
+        gameModeSelect.style.display = 'none';
+        createGameArea.style.display = 'block';
+        
+        currentGameNum.textContent = currentGameIndex + 1;
+        totalGamesNum.textContent = totalGames;
+        
+        if (soundEnabled) {
+            playSound('select');
+        }
+    });
+});
+
+// Обработчики для создания игры
+const createChoiceBtns = createGameArea.querySelectorAll('.choice-btn');
+createChoiceBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        const choice = btn.dataset.choice;
+        createdGames[currentGameIndex] = choice;
+        currentGameIndex++;
+        
+        if (soundEnabled) {
+            playSound('select');
+        }
+        
+        if (currentGameIndex < totalGames) {
+            // Следующий ход
+            currentGameNum.textContent = currentGameIndex + 1;
+        } else {
+            // Все ходы сделаны
+            createGameArea.style.display = 'none';
+            waitingArea.style.display = 'block';
+            
+            // Сохраняем игру в localStorage
+            saveGame(createdGames);
+        }
+    });
+    
+    btn.addEventListener('mouseenter', () => {
+        if (soundEnabled) {
+            playSound('hover');
+        }
+    });
+});
+
+// Проверка есть ли активная игра
+function loadGame() {
+    const saved = localStorage.getItem('rps_game');
+    if (saved) {
+        return JSON.parse(saved);
+    }
+    return null;
+}
+
+function saveGame(games) {
+    localStorage.setItem('rps_game', JSON.stringify({
+        createdGames: games,
+        createdAt: Date.now()
+    }));
+}
+
+function clearGame() {
+    localStorage.removeItem('rps_game');
+}
+
+// Проверяем при загрузке
+const existingGame = loadGame();
+if (existingGame) {
+    // Игрок отвечает на созданную игру
+    isCreator = false;
+    createdGames = existingGame.createdGames;
+    totalGames = createdGames.length;
+    currentGameIndex = 0;
+    
+    createGameBtn.style.display = 'none';
+    
+    // Добавляем кнопку сброса
+    const resetBtn = document.createElement('button');
+    resetBtn.className = 'control-btn';
+    resetBtn.textContent = '🔄 Новая игра';
+    resetBtn.style.marginTop = '10px';
+    resetBtn.addEventListener('click', () => {
+        clearGame();
+        location.reload();
+    });
+    gameControls.appendChild(resetBtn);
+}
 
 // Переключатель тем
 const themeSwitcher = document.getElementById('theme-switcher');
@@ -447,20 +551,32 @@ const battleEffect = document.getElementById('battle-effect');
 function makeMove(playerChoice) {
     // Вибрация при нажатии
     tg.HapticFeedback.impactOccurred('light');
-    
+
     // Скрываем выбор, показываем анимацию
     choiceArea.style.display = 'none';
     thinkingArea.style.display = 'block';
-    
-    // Бот выбирает случайно
-    const choices = ['камень', 'ножницы', 'бумага'];
-    const botChoice = choices[Math.floor(Math.random() * 3)];
-    
-    // Определяем победителя
-    const result = determineWinner(playerChoice, botChoice);
-    
-    // Запускаем анимацию "думания"
-    runThinkingAnimation(playerChoice, botChoice, result);
+
+    // Если игра с другом и есть созданные ходы
+    if (!isCreator && createdGames.length > 0 && currentGameIndex < createdGames.length) {
+        // Берём ход создателя
+        const botChoice = createdGames[currentGameIndex];
+        
+        // Определяем победителя
+        const result = determineWinner(playerChoice, botChoice);
+        
+        // Запускаем анимацию
+        runThinkingAnimation(playerChoice, botChoice, result);
+    } else {
+        // Обычная игра с ботом
+        const choices = ['камень', 'ножницы', 'бумага'];
+        const botChoice = choices[Math.floor(Math.random() * 3)];
+        
+        // Определяем победителя
+        const result = determineWinner(playerChoice, botChoice);
+        
+        // Запускаем анимацию
+        runThinkingAnimation(playerChoice, botChoice, result);
+    }
 }
 
 // Анимация "бот думает"
@@ -604,30 +720,87 @@ function showResult(playerChoice, botChoice, result) {
     // Скрываем битву
     battleArea.style.display = 'none';
 
-    // Обновляем счёт с анимацией
-    if (result === 'win') {
-        animateScore(playerScoreEl, playerScore, playerScore + 1);
-        playerScore++;
-    } else if (result === 'lose') {
-        animateScore(botScoreEl, botScore, botScore + 1);
-        botScore++;
+    // Если игра с другом
+    if (!isCreator && createdGames.length > 0) {
+        // Обновляем счёт
+        if (result === 'win') {
+            playerScore++;
+        } else if (result === 'lose') {
+            botScore++;
+        }
+        
+        currentGameIndex++;
+        
+        // Показываем результат
+        resultMessage.textContent = resultMessages[result];
+        resultMessage.className = 'result-message ' + result;
+        playerChoiceDisplay.textContent = choiceEmojis[playerChoice];
+        botChoiceDisplay.textContent = choiceEmojis[botChoice];
+        resultArea.style.display = 'block';
+        
+        // Если есть ещё игры
+        if (currentGameIndex < totalGames) {
+            // Следующий ход через 2 сек
+            setTimeout(() => {
+                resultArea.style.display = 'none';
+                choiceArea.style.display = 'block';
+            }, 2000);
+        } else {
+            // Конец серии
+            setTimeout(() => {
+                showFinalResult();
+            }, 2000);
+        }
+    } else {
+        // Обычная игра с ботом
+        if (result === 'win') {
+            animateScore(playerScoreEl, playerScore, playerScore + 1);
+            playerScore++;
+        } else if (result === 'lose') {
+            animateScore(botScoreEl, botScore, botScore + 1);
+            botScore++;
+        }
+
+        // Обновляем mini-score если в fullscreen
+        if (isFullscreen) {
+            updateMiniScore();
+        }
+
+        // Показываем выбор
+        playerChoiceDisplay.textContent = choiceEmojis[playerChoice];
+        botChoiceDisplay.textContent = choiceEmojis[botChoice];
+
+        // Показываем результат
+        resultMessage.textContent = resultMessages[result];
+        resultMessage.className = 'result-message ' + result;
+
+        // Переключаем видимость
+        resultArea.style.display = 'block';
     }
+}
 
-    // Обновляем mini-score если в fullscreen
-    if (isFullscreen) {
-        updateMiniScore();
+// Показать финальный результат серии
+function showFinalResult() {
+    resultArea.style.display = 'none';
+    
+    let finalMessage = '';
+    if (playerScore > botScore) {
+        finalMessage = `🏆 Ты победил в серии!\n${playerScore}:${botScore}`;
+    } else if (botScore > playerScore) {
+        finalMessage = `😔 Ты проиграл в серии!\n${playerScore}:${botScore}`;
+    } else {
+        finalMessage = `🤝 Ничья в серии!\n${playerScore}:${botScore}`;
     }
-
-    // Показываем выбор
-    playerChoiceDisplay.textContent = choiceEmojis[playerChoice];
-    botChoiceDisplay.textContent = choiceEmojis[botChoice];
-
-    // Показываем результат
-    resultMessage.textContent = resultMessages[result];
-    resultMessage.className = 'result-message ' + result;
-
-    // Переключаем видимость
+    
+    resultMessage.textContent = finalMessage;
+    resultMessage.className = 'result-message';
     resultArea.style.display = 'block';
+    
+    // Очищаем игру
+    setTimeout(() => {
+        clearGame();
+        location.reload();
+    }, 4000);
 }
 
 // Анимация счётчика

@@ -43,9 +43,39 @@
             <button class="control-btn" id="sound-toggle">
                 🔊 Звук: ВКЛ
             </button>
-            <button class="control-btn" id="invite-btn">
-                🎮 Играть с другом
+            <button class="control-btn" id="create-game-btn">
+                🎮 Создать игру
             </button>
+        </div>
+        
+        <div class="game-mode-select" id="game-mode-select" style="display: none;">
+            <p>Сколько игр в серии?</p>
+            <div class="mode-buttons">
+                <button class="mode-btn" data-games="1">1 игра</button>
+                <button class="mode-btn" data-games="3">3 игры</button>
+                <button class="mode-btn" data-games="5">5 игр</button>
+            </div>
+        </div>
+        
+        <div class="create-game-area" id="create-game-area" style="display: none;">
+            <p>Твой ход <span id="current-game-num">1</span> из <span id="total-games-num">1</span>:</p>
+            <div class="buttons">
+                <button class="choice-btn" data-choice="камень">
+                    ⚪ Камень
+                </button>
+                <button class="choice-btn" data-choice="ножницы">
+                    ✂ Ножницы
+                </button>
+                <button class="choice-btn" data-choice="бумага">
+                    📄 Бумага
+                </button>
+            </div>
+        </div>
+        
+        <div class="waiting-area" id="waiting-area" style="display: none;">
+            <div class="waiting-icon">⏳</div>
+            <p>Ждём ответа соперника...</p>
+            <p class="waiting-hint">Покажи экран другу или сделай скриншот</p>
         </div>
         
         <div class="game-area">
