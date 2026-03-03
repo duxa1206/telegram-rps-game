@@ -22,8 +22,8 @@ const thinkingEmoji = document.getElementById('thinking-emoji');
 
 // Эмодзи для выбора
 const choiceEmojis = {
-    'камень': '🗿',
-    'ножницы': '✂️',
+    'камень': '⚪',
+    'ножницы': '✂',
     'бумага': '📄'
 };
 
