@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Переменные окружения
+.env
+*.env
+
+# Логи
+*.log
+ngrok.log
+
+# Временные файлы
+temp_*.txt
+*.tmp
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
