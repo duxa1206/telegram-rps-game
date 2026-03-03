@@ -154,6 +154,62 @@ body.space .streak-display {
     margin-bottom: 15px;
 }
 
+/* Game Controls */
+.game-controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.control-btn {
+    padding: 10px 18px;
+    font-size: 0.9rem;
+    border: 2px solid #667eea;
+    background: white;
+    color: #667eea;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+}
+
+.control-btn:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.control-btn.active {
+    background: #667eea;
+    color: white;
+}
+
+body.neon .control-btn {
+    border-color: #0ff;
+    background: rgba(0, 0, 0, 0.6);
+    color: #0ff;
+}
+
+body.neon .control-btn:hover,
+body.neon .control-btn.active {
+    background: #0ff;
+    color: #000;
+}
+
+body.space .control-btn {
+    border-color: #a0a0ff;
+    background: rgba(20, 20, 50, 0.8);
+    color: #a0a0ff;
+}
+
+body.space .control-btn:hover,
+body.space .control-btn.active {
+    background: #a0a0ff;
+    color: #000;
+}
+
 .fullscreen-btn {
     padding: 6px 12px;
     font-size: 0.85rem;
@@ -326,147 +382,6 @@ h1 {
 @keyframes glow {
     0%, 100% { filter: drop-shadow(0 0 5px rgba(255, 100, 100, 0.8)); }
     50% { filter: drop-shadow(0 0 15px rgba(255, 100, 100, 1)); }
-}
-
-.streak-display {
-    text-align: center;
-    padding: 10px 15px;
-    background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(255, 215, 0, 0.4);
-    animation: streakPulse 1.5s ease-in-out infinite;
-}
-
-.streak-display.active {
-    animation: streakActive 0.5s ease-in-out infinite;
-}
-
-@keyframes streakPulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-}
-
-@keyframes streakActive {
-    0%, 100% { 
-        transform: scale(1);
-        box-shadow: 0 2px 10px rgba(255, 215, 0, 0.4);
-    }
-    50% { 
-        transform: scale(1.1);
-        box-shadow: 0 4px 20px rgba(255, 215, 0, 0.8);
-    }
-}
-
-.streak-icon {
-    font-size: 1.5rem;
-    display: block;
-}
-
-.streak-display span:last-child {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #fff;
-    text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-}
-
-/* Progress Bar */
-.progress-container {
-    margin-bottom: 20px;
-    padding: 15px;
-    background: #f5f5f5;
-    border-radius: 10px;
-}
-
-.progress-bar {
-    width: 100%;
-    height: 20px;
-    background: #e0e0e0;
-    border-radius: 10px;
-    overflow: hidden;
-    display: flex;
-    margin-bottom: 10px;
-    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.progress-fill {
-    height: 100%;
-    transition: width 0.5s ease;
-}
-
-.player-fill {
-    background: linear-gradient(90deg, #4CAF50 0%, #45a049 100%);
-    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
-}
-
-.bot-fill {
-    background: linear-gradient(90deg, #f44336 0%, #da1e1e 100%);
-    box-shadow: 0 0 10px rgba(244, 67, 54, 0.5);
-}
-
-.progress-labels {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.9rem;
-    color: #666;
-}
-
-#progress-text {
-    font-weight: bold;
-    color: #333;
-}
-
-/* New Series Button */
-.new-series-btn {
-    display: block;
-    margin: 0 auto 20px;
-    padding: 12px 25px;
-    font-size: 1rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    border-radius: 25px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.new-series-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
-}
-
-.new-series-btn.pulse {
-    animation: pulse 1s ease-in-out infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { 
-        transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
-    }
-    50% { 
-        transform: scale(1.05);
-        box-shadow: 0 0 0 15px rgba(102, 126, 234, 0);
-    }
-}
-
-.new-series-btn::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    background: rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    transition: width 0.6s, height 0.6s;
-}
-
-.new-series-btn:active::after {
-    width: 300px;
-    height: 300px;
 }
 
 /* Fullscreen Mode */

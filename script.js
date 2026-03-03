@@ -11,6 +11,8 @@ const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
 // Генерация звуков
 function playSound(type) {
+    if (!soundEnabled) return;
+    
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
 
@@ -145,8 +147,8 @@ function playWinSound() {
 // Счёт
 let playerScore = 0;
 let botScore = 0;
-let currentStreak = 0;
-let seriesWinsNeeded = 5;
+let soundEnabled = true;
+let gameMode = 'bot'; // 'bot' или 'friend'
 
 // Элементы DOM
 const choiceBtns = document.querySelectorAll('.choice-btn');
@@ -160,12 +162,8 @@ const playerScoreEl = document.getElementById('player-score');
 const botScoreEl = document.getElementById('bot-score');
 const thinkingArea = document.getElementById('thinking-area');
 const thinkingEmoji = document.getElementById('thinking-emoji');
-const streakDisplay = document.getElementById('streak-display');
-const streakCountEl = document.getElementById('streak-count');
-const playerFill = document.getElementById('player-fill');
-const botFill = document.getElementById('bot-fill');
-const progressText = document.getElementById('progress-text');
-const newSeriesBtn = document.getElementById('new-series-btn');
+const soundToggle = document.getElementById('sound-toggle');
+const inviteBtn = document.getElementById('invite-btn');
 
 // Эмодзи для выбора
 const choiceEmojis = {
@@ -206,13 +204,44 @@ playAgainBtn.addEventListener('click', () => {
     battleArea.style.display = 'none';
 });
 
-// Обработчик кнопки "Новая серия"
-newSeriesBtn.addEventListener('mouseenter', () => {
-    playSound('hover');
+// Переключатель звука
+soundToggle.addEventListener('click', () => {
+    soundEnabled = !soundEnabled;
+    
+    if (soundEnabled) {
+        soundToggle.textContent = '🔊 Звук: ВКЛ';
+        soundToggle.classList.add('active');
+        playSound('select');
+    } else {
+        soundToggle.textContent = '🔇 Звук: ВЫКЛ';
+        soundToggle.classList.remove('active');
+    }
+    
+    localStorage.setItem('rps_sound', soundEnabled);
 });
 
-newSeriesBtn.addEventListener('click', () => {
-    resetSeries();
+// Загружаем настройку звука
+const savedSound = localStorage.getItem('rps_sound');
+if (savedSound !== null) {
+    soundEnabled = savedSound === 'true';
+    if (!soundEnabled) {
+        soundToggle.textContent = '🔇 Звук: ВЫКЛ';
+        soundToggle.classList.remove('active');
+    }
+}
+
+// Кнопка "Играть с другом"
+inviteBtn.addEventListener('click', () => {
+    const gameUrl = window.location.href;
+    const message = `🎮 Давай сыграем в Камень, Ножницы, Бумага!\n\nОткрой ссылку: ${gameUrl}`;
+    
+    if (tg && tg.shareUrl) {
+        tg.shareUrl(message);
+    } else {
+        // Копируем в буфер
+        navigator.clipboard.writeText(`${message}\n\nИли скопируй ссылку: ${gameUrl}`);
+        alert('Ссылка скопирована в буфер обмена!');
+    }
 });
 
 // Переключатель тем
@@ -566,21 +595,15 @@ function showResult(playerChoice, botChoice, result) {
     if (result === 'win') {
         animateScore(playerScoreEl, playerScore, playerScore + 1);
         playerScore++;
-        currentStreak++;
     } else if (result === 'lose') {
         animateScore(botScoreEl, botScore, botScore + 1);
         botScore++;
-        currentStreak = 0;
-    } else {
-        // Ничья не меняет счёт но сбрасывает стрик
-        currentStreak = 0;
     }
 
-    // Обновляем стрик
-    updateStreak();
-    
-    // Обновляем прогресс-бар
-    updateProgressBar();
+    // Обновляем mini-score если в fullscreen
+    if (isFullscreen) {
+        updateMiniScore();
+    }
 
     // Показываем выбор
     playerChoiceDisplay.textContent = choiceEmojis[playerChoice];
@@ -592,9 +615,6 @@ function showResult(playerChoice, botChoice, result) {
 
     // Переключаем видимость
     resultArea.style.display = 'block';
-    
-    // Проверяем конец серии
-    checkSeriesEnd();
 }
 
 // Анимация счётчика
@@ -620,80 +640,6 @@ function animateScore(element, from, to) {
     }
     
     requestAnimationFrame(animate);
-}
-
-// Обновить стрик
-function updateStreak() {
-    streakCountEl.textContent = `x${currentStreak}`;
-    
-    if (currentStreak > 0) {
-        streakDisplay.classList.add('active');
-        
-        // Искры для стрика > 3
-        if (currentStreak >= 3) {
-            createStreakSparkles();
-        }
-    } else {
-        streakDisplay.classList.remove('active');
-    }
-}
-
-// Обновить прогресс-бар
-function updateProgressBar() {
-    const totalWins = playerScore + botScore;
-    const playerPercent = totalWins > 0 ? (playerScore / seriesWinsNeeded) * 100 : 0;
-    const botPercent = totalWins > 0 ? (botScore / seriesWinsNeeded) * 100 : 0;
-    
-    playerFill.style.width = `${Math.min(playerPercent, 100)}%`;
-    botFill.style.width = `${Math.min(botPercent, 100)}%`;
-    progressText.textContent = `${playerScore} : ${botScore}`;
-}
-
-// Проверка конца серии
-function checkSeriesEnd() {
-    if (playerScore >= seriesWinsNeeded || botScore >= seriesWinsNeeded) {
-        // Серия закончена
-        setTimeout(() => {
-            newSeriesBtn.style.display = 'block';
-            
-            if (currentStreak > 5) {
-                newSeriesBtn.classList.add('pulse');
-            }
-        }, 500);
-    }
-}
-
-// Сброс серии
-function resetSeries() {
-    playerScore = 0;
-    botScore = 0;
-    currentStreak = 0;
-    
-    animateScore(playerScoreEl, 0, 0);
-    animateScore(botScoreEl, 0, 0);
-    updateStreak();
-    updateProgressBar();
-    
-    newSeriesBtn.style.display = 'none';
-    newSeriesBtn.classList.remove('pulse');
-    
-    playSound('select');
-}
-
-// Искры для стрика
-function createStreakSparkles() {
-    const rect = streakDisplay.getBoundingClientRect();
-    
-    for (let i = 0; i < 5; i++) {
-        const sparkle = document.createElement('div');
-        sparkle.className = 'sparkle';
-        sparkle.style.left = (rect.left + Math.random() * rect.width) + 'px';
-        sparkle.style.top = (rect.top + Math.random() * rect.height) + 'px';
-        sparkle.style.animationDelay = (i * 0.1) + 's';
-        document.body.appendChild(sparkle);
-        
-        setTimeout(() => sparkle.remove(), 800);
-    }
 }
 
 // Звук при запуске (через 1 секунду после загрузки)
