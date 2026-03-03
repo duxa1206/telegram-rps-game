@@ -283,6 +283,118 @@ themeBtns.forEach(btn => {
 const savedTheme = localStorage.getItem('rps_theme') || detectTelegramTheme();
 setTheme(savedTheme);
 
+// Полноэкранный режим
+const fullscreenBtn = document.getElementById('fullscreen-btn');
+const exitFullscreenBtn = document.getElementById('exit-fullscreen-btn');
+const fullscreenButtons = document.getElementById('fullscreen-buttons');
+const miniScore = document.getElementById('mini-score');
+const miniPlayer = document.getElementById('mini-player');
+const miniBot = document.getElementById('mini-bot');
+let isFullscreen = false;
+
+// Вход в fullscreen
+fullscreenBtn.addEventListener('click', () => {
+    enterFullscreen();
+});
+
+// Выход из fullscreen
+exitFullscreenBtn.addEventListener('click', () => {
+    exitFullscreen();
+});
+
+// Обработчики кнопок в fullscreen
+const fullscreenChoiceBtns = document.querySelectorAll('.choice-btn-fs');
+fullscreenChoiceBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        // Ripple эффект
+        createRipple(e, btn);
+        
+        const choice = btn.dataset.choice;
+        playSound('select');
+        tg.HapticFeedback.impactOccurred('light');
+        makeMove(choice);
+    });
+    
+    btn.addEventListener('mouseenter', () => {
+        playSound('hover');
+    });
+});
+
+// Ripple эффект
+function createRipple(event, button) {
+    const ripple = button.querySelector('.ripple');
+    const rect = button.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    const x = event.clientX - rect.left - size / 2;
+    const y = event.clientY - rect.top - size / 2;
+    
+    ripple.style.width = ripple.style.height = size + 'px';
+    ripple.style.left = x + 'px';
+    ripple.style.top = y + 'px';
+    ripple.style.animation = 'none';
+    
+    // Перезапуск анимации
+    setTimeout(() => {
+        ripple.style.animation = 'rippleAnim 0.6s ease-out';
+    }, 10);
+}
+
+// Вход в fullscreen
+function enterFullscreen() {
+    isFullscreen = true;
+    document.body.classList.add('fullscreen');
+    
+    // Telegram WebApp expand и hide header
+    tg.expand();
+    tg.setHeaderColor('transparent');
+    tg.enableClosingConfirmation();
+    
+    // Скрываем кнопки
+    fullscreenButtons.style.display = 'flex';
+    exitFullscreenBtn.style.display = 'block';
+    miniScore.style.display = 'block';
+    
+    // Обновляем mini-score
+    updateMiniScore();
+    
+    playSound('select');
+}
+
+// Выход из fullscreen
+function exitFullscreen() {
+    isFullscreen = false;
+    document.body.classList.remove('fullscreen');
+    
+    // Показываем кнопки
+    fullscreenButtons.style.display = 'none';
+    exitFullscreenBtn.style.display = 'none';
+    miniScore.style.display = 'none';
+    
+    playSound('select');
+}
+
+// Обновление mini-score
+function updateMiniScore() {
+    miniPlayer.textContent = playerScore;
+    miniBot.textContent = botScore;
+}
+
+// Swipe up для выхода
+let touchStartY = 0;
+document.addEventListener('touchstart', (e) => {
+    touchStartY = e.touches[0].clientY;
+});
+
+document.addEventListener('touchend', (e) => {
+    const touchEndY = e.changedTouches[0].clientY;
+    const diff = touchStartY - touchEndY;
+    
+    // Swipe up > 100px
+    if (diff > 100 && isFullscreen) {
+        exitFullscreen();
+    }
+});
+
 // Элементы для анимации битвы
 const battleArea = document.getElementById('battle-area');
 const playerFighterEmoji = document.getElementById('player-fighter-emoji');
@@ -368,13 +480,13 @@ function showBattleEffect(result) {
         // Конфетти для победы
         battleEffect.textContent = '💥';
         createConfetti();
-        tg.HapticFeedback.notificationOccurred('success');
+        tg.HapticFeedback.impactOccurred('heavy');
         playSound('win');
     } else if (result === 'lose') {
         // Дым для поражения
         battleEffect.textContent = '💨';
         createSmoke();
-        tg.HapticFeedback.notificationOccurred('error');
+        tg.HapticFeedback.impactOccurred('error');
         playSound('lose');
     } else {
         // Тряска для ничьей
@@ -382,6 +494,11 @@ function showBattleEffect(result) {
         document.querySelector('.battle-area').classList.add('shake');
         tg.HapticFeedback.notificationOccurred('warning');
         playSound('draw');
+    }
+    
+    // Обновляем mini-score если в fullscreen
+    if (isFullscreen) {
+        updateMiniScore();
     }
 
     // Очищаем классы после анимации

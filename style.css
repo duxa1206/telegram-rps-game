@@ -146,6 +146,72 @@ body.space .streak-display {
     flex-wrap: wrap;
 }
 
+/* Header Controls */
+.header-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.fullscreen-btn {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    border: 2px solid #667eea;
+    background: white;
+    color: #667eea;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.fullscreen-btn:hover {
+    background: #667eea;
+    color: white;
+}
+
+.mini-score {
+    padding: 5px 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    box-shadow: 0 2px 10px rgba(102, 126, 234, 0.4);
+}
+
+body.neon .fullscreen-btn {
+    border-color: #0ff;
+    background: rgba(0, 0, 0, 0.6);
+    color: #0ff;
+}
+
+body.neon .fullscreen-btn:hover {
+    background: #0ff;
+    color: #000;
+}
+
+body.neon .mini-score {
+    background: linear-gradient(135deg, #0ff 0%, #00ff88 100%);
+    box-shadow: 0 2px 10px rgba(0, 255, 255, 0.6);
+}
+
+body.space .fullscreen-btn {
+    border-color: #a0a0ff;
+    background: rgba(20, 20, 50, 0.8);
+    color: #a0a0ff;
+}
+
+body.space .fullscreen-btn:hover {
+    background: #a0a0ff;
+    color: #000;
+}
+
+body.space .mini-score {
+    background: linear-gradient(135deg, #a0a0ff 0%, #6060ff 100%);
+    box-shadow: 0 2px 10px rgba(160, 160, 255, 0.6);
+}
+
 .theme-btn {
     padding: 8px 16px;
     font-size: 0.9rem;
@@ -401,6 +467,134 @@ h1 {
 .new-series-btn:active::after {
     width: 300px;
     height: 300px;
+}
+
+/* Fullscreen Mode */
+body.fullscreen .container {
+    max-width: 90%;
+    padding: 20px;
+}
+
+body.fullscreen .theme-switcher,
+body.fullscreen .score-board,
+body.fullscreen .progress-container {
+    display: none;
+}
+
+body.fullscreen .mini-score {
+    display: block !important;
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+}
+
+body.fullscreen .fullscreen-btn {
+    display: none;
+}
+
+.buttons-fullscreen {
+    display: flex !important;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.buttons-normal {
+    display: flex !important;
+}
+
+body.fullscreen .buttons-normal {
+    display: none !important;
+}
+
+.choice-btn-fs {
+    position: relative;
+    width: 100%;
+    padding: 40px 20px;
+    font-size: 1.2rem;
+    border: 3px solid var(--btn-border);
+    background: var(--btn-bg);
+    color: var(--btn-color);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.fs-emoji {
+    font-size: 4rem;
+    filter: var(--emoji-filter);
+    transition: transform 0.3s ease;
+}
+
+.fs-label {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.choice-btn-fs:hover .fs-emoji {
+    transform: scale(1.2);
+}
+
+.choice-btn-fs:active {
+    transform: scale(0.95);
+}
+
+/* Ripple Effect */
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.6);
+    transform: scale(0);
+    animation: rippleAnim 0.6s ease-out;
+    pointer-events: none;
+}
+
+@keyframes rippleAnim {
+    0% {
+        transform: scale(0);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+/* Exit Fullscreen Button */
+.exit-fullscreen-btn {
+    display: block;
+    margin: 20px auto;
+    padding: 12px 25px;
+    font-size: 1rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.exit-fullscreen-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+}
+
+body.neon .exit-fullscreen-btn {
+    background: linear-gradient(135deg, #0ff 0%, #00ff88 100%);
+    color: #000;
+}
+
+body.space .exit-fullscreen-btn {
+    background: linear-gradient(135deg, #a0a0ff 0%, #6060ff 100%);
+    color: #000;
 }
 
 /* Sparkles for streaks */

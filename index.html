@@ -9,6 +9,15 @@
 </head>
 <body>
     <div class="container">
+        <div class="header-controls">
+            <button class="fullscreen-btn" id="fullscreen-btn">
+                ⛶ Full
+            </button>
+            <div class="mini-score" id="mini-score" style="display: none;">
+                <span id="mini-player">0</span> : <span id="mini-bot">0</span>
+            </div>
+        </div>
+        
         <div class="theme-switcher" id="theme-switcher">
             <button class="theme-btn" data-theme="classic">🎨 Классика</button>
             <button class="theme-btn" data-theme="neon">💜 Неон</button>
@@ -52,7 +61,7 @@
         <div class="game-area">
             <div class="choice-area">
                 <p>Выберите:</p>
-                <div class="buttons">
+                <div class="buttons buttons-normal">
                     <button class="choice-btn" data-choice="камень">
                         ⚪ Камень
                     </button>
@@ -63,7 +72,28 @@
                         📄 Бумага
                     </button>
                 </div>
+                <div class="buttons buttons-fullscreen" id="fullscreen-buttons" style="display: none;">
+                    <button class="choice-btn-fs" data-choice="камень">
+                        <span class="fs-emoji">⚪</span>
+                        <span class="fs-label">Камень</span>
+                        <div class="ripple"></div>
+                    </button>
+                    <button class="choice-btn-fs" data-choice="ножницы">
+                        <span class="fs-emoji">✂</span>
+                        <span class="fs-label">Ножницы</span>
+                        <div class="ripple"></div>
+                    </button>
+                    <button class="choice-btn-fs" data-choice="бумага">
+                        <span class="fs-emoji">📄</span>
+                        <span class="fs-label">Бумага</span>
+                        <div class="ripple"></div>
+                    </button>
+                </div>
             </div>
+            
+            <button class="exit-fullscreen-btn" id="exit-fullscreen-btn" style="display: none;">
+                ⬇ Свернуть
+            </button>
 
             <div class="thinking-area" id="thinking-area" style="display: none;">
                 <p>Бот выбирает...</p>
