@@ -385,14 +385,30 @@ h1 {
 }
 
 /* Fullscreen Mode */
-body.fullscreen .container {
-    max-width: 90%;
-    padding: 20px;
+body.fullscreen {
+    background: var(--bg-gradient);
 }
 
-body.fullscreen .theme-switcher,
-body.fullscreen .score-board,
+body.fullscreen .container {
+    max-width: 95%;
+    padding: 15px;
+    background: transparent;
+    box-shadow: none;
+}
+
+body.fullscreen .theme-switcher {
+    display: none;
+}
+
+body.fullscreen .score-board {
+    display: none;
+}
+
 body.fullscreen .progress-container {
+    display: none;
+}
+
+body.fullscreen .game-controls {
     display: none;
 }
 
@@ -408,13 +424,19 @@ body.fullscreen .fullscreen-btn {
     display: none;
 }
 
-.buttons-fullscreen {
-    display: flex !important;
+body.fullscreen .game-area {
+    min-height: 60vh;
+    display: flex;
     flex-direction: column;
-    gap: 15px;
-    width: 100%;
-    max-width: 400px;
-    margin: 0 auto;
+    justify-content: center;
+}
+
+body.fullscreen .choice-area p {
+    display: none;
+}
+
+.buttons-fullscreen {
+    display: none !important;
 }
 
 .buttons-normal {
@@ -425,11 +447,34 @@ body.fullscreen .buttons-normal {
     display: none !important;
 }
 
+body.fullscreen .buttons-fullscreen {
+    display: flex !important;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+body.fullscreen .choice-btn-fs {
+    width: 100%;
+    padding: 50px 30px;
+    font-size: 1.5rem;
+}
+
+body.fullscreen .fs-emoji {
+    font-size: 6rem;
+}
+
+body.fullscreen .exit-fullscreen-btn {
+    display: block !important;
+}
+
 .choice-btn-fs {
     position: relative;
     width: 100%;
-    padding: 40px 20px;
-    font-size: 1.2rem;
+    padding: 50px 30px;
+    font-size: 1.5rem;
     border: 3px solid var(--btn-border);
     background: var(--btn-bg);
     color: var(--btn-color);
@@ -437,21 +482,25 @@ body.fullscreen .buttons-normal {
     cursor: pointer;
     transition: all 0.3s ease;
     overflow: hidden;
-    display: flex;
+    display: none;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 15px;
 }
 
 .fs-emoji {
-    font-size: 4rem;
+    font-size: 6rem;
     filter: var(--emoji-filter);
     transition: transform 0.3s ease;
 }
 
 .fs-label {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     font-weight: bold;
+}
+
+body.fullscreen .choice-btn-fs {
+    display: flex !important;
 }
 
 .choice-btn-fs:hover .fs-emoji {
@@ -485,7 +534,7 @@ body.fullscreen .buttons-normal {
 
 /* Exit Fullscreen Button */
 .exit-fullscreen-btn {
-    display: block;
+    display: none;
     margin: 20px auto;
     padding: 12px 25px;
     font-size: 1rem;

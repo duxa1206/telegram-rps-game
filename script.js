@@ -339,19 +339,25 @@ fullscreenChoiceBtns.forEach(btn => {
         createRipple(e, btn);
         
         const choice = btn.dataset.choice;
-        playSound('select');
+        if (soundEnabled) {
+            playSound('select');
+        }
         tg.HapticFeedback.impactOccurred('light');
         makeMove(choice);
     });
     
     btn.addEventListener('mouseenter', () => {
-        playSound('hover');
+        if (soundEnabled) {
+            playSound('hover');
+        }
     });
 });
 
 // Ripple эффект
 function createRipple(event, button) {
     const ripple = button.querySelector('.ripple');
+    if (!ripple) return;
+    
     const rect = button.getBoundingClientRect();
     const size = Math.max(rect.width, rect.height);
     const x = event.clientX - rect.left - size / 2;
@@ -366,6 +372,11 @@ function createRipple(event, button) {
     setTimeout(() => {
         ripple.style.animation = 'rippleAnim 0.6s ease-out';
     }, 10);
+    
+    // Удаляем ripple после анимации
+    setTimeout(() => {
+        ripple.style.animation = 'none';
+    }, 600);
 }
 
 // Вход в fullscreen
@@ -373,20 +384,19 @@ function enterFullscreen() {
     isFullscreen = true;
     document.body.classList.add('fullscreen');
     
-    // Telegram WebApp expand и hide header
+    // Telegram WebApp expand
     tg.expand();
-    tg.setHeaderColor('transparent');
-    tg.enableClosingConfirmation();
     
-    // Скрываем кнопки
-    fullscreenButtons.style.display = 'flex';
-    exitFullscreenBtn.style.display = 'block';
+    // Скрываем/показываем элементы
     miniScore.style.display = 'block';
+    exitFullscreenBtn.style.display = 'block';
     
     // Обновляем mini-score
     updateMiniScore();
     
-    playSound('select');
+    if (soundEnabled) {
+        playSound('select');
+    }
 }
 
 // Выход из fullscreen
@@ -395,17 +405,20 @@ function exitFullscreen() {
     document.body.classList.remove('fullscreen');
     
     // Показываем кнопки
-    fullscreenButtons.style.display = 'none';
     exitFullscreenBtn.style.display = 'none';
     miniScore.style.display = 'none';
     
-    playSound('select');
+    if (soundEnabled) {
+        playSound('select');
+    }
 }
 
 // Обновление mini-score
 function updateMiniScore() {
-    miniPlayer.textContent = playerScore;
-    miniBot.textContent = botScore;
+    if (miniPlayer && miniBot) {
+        miniPlayer.textContent = playerScore;
+        miniBot.textContent = botScore;
+    }
 }
 
 // Swipe up для выхода
@@ -510,21 +523,21 @@ function showBattleEffect(result) {
         battleEffect.textContent = '💥';
         createConfetti();
         tg.HapticFeedback.impactOccurred('heavy');
-        playSound('win');
+        if (soundEnabled) playSound('win');
     } else if (result === 'lose') {
         // Дым для поражения
         battleEffect.textContent = '💨';
         createSmoke();
-        tg.HapticFeedback.impactOccurred('error');
-        playSound('lose');
+        tg.HapticFeedback.impactOccurred('soft');
+        if (soundEnabled) playSound('lose');
     } else {
         // Тряска для ничьей
         battleEffect.textContent = '🔄';
         document.querySelector('.battle-area').classList.add('shake');
         tg.HapticFeedback.notificationOccurred('warning');
-        playSound('draw');
+        if (soundEnabled) playSound('draw');
     }
-    
+
     // Обновляем mini-score если в fullscreen
     if (isFullscreen) {
         updateMiniScore();
